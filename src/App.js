@@ -101,6 +101,25 @@ class App extends Component {
     });
   }
 
+  playSong(id){
+    console.log(id.target.id);
+    let options = {
+      url: 'https://api.spotify.com/v1/me/player/play',
+      headers: {
+        'Authorization': 'Bearer ' + this.state.access_token
+      },
+      body: {
+        uris: [id.target.id]
+      },
+      json: true
+    };
+    request.put(options,(err,res,body)=>{
+      if(!err && (res.statusCode == 200 || res.statusCode == 201)){
+        console.log(body);
+      }
+    });
+  }
+
   handlePlaylist(event){
     let id = event.target.id;
     let owner = '';
@@ -127,13 +146,14 @@ class App extends Component {
         let trackList = tracks.map(obj => {
           let explicit = '';
           if(!obj.track.explicit) explicit = "NOT ";
+          console.log(obj.track);
           return (
             <tr>
               <td>
-                {obj.track.preview_url != null ? <a href={`https://play.spotify.com/track/${obj.track.id}`} target="_blank">
-                  <img className="preview" src={obj.track.album.images[0].url} width="200" height="200"/>
+                {obj.track.album.images[0] !== undefined ? <a id={obj.track.uri} onClick={this.playSong.bind(this)} target="_blank">
+                  <img id={obj.track.uri} className="preview" src={obj.track.album.images[0].url} width="200" height="200"/>
                 </a> :
-                  <img src={obj.track.album.images[0].url} width="200" height="200"/>
+                  <span></span>
                 }
               </td>
               <td>
@@ -152,8 +172,9 @@ class App extends Component {
   }
 
   login(){
-    console.log(window.location.href);
-    window.location.href = (`https://accounts.spotify.com/authorize?client_id=${config.client_id}&redirect_uri=https:%2F%2Fspotifycleaning-1142f.firebaseapp.com/&scope=user-read-private%20user-read-email%20playlist-read-private%20playlist-modify-private%20playlist-modify-public&response_type=token&state=123`);
+    console.log(window.location.href); //(`https://accounts.spotify.com/authorize?client_id=${config.client_id}&redirect_uri=https:%2F%2Fspotifycleaning-1142f.firebaseapp.com/&scope=user-read-private%20user-read-email%20playlist-read-private%20playlist-modify-private%20playlist-modify-public%20user-modify-playback-state&response_type=token&state=123`);
+    //(`https://accounts.spotify.com/authorize?client_id=${config.client_id}&redirect_uri=http:%2F%2Flocalhost:3000/&scope=user-read-private%20user-read-email%20playlist-read-private%20playlist-modify-private%20playlist-modify-public%20user-modify-playback-state&response_type=token&state=123`);
+    window.location.href = (`https://accounts.spotify.com/authorize?client_id=${config.client_id}&redirect_uri=https:%2F%2Fspotifycleaning-1142f.firebaseapp.com/&scope=user-read-private%20user-read-email%20playlist-read-private%20playlist-modify-private%20playlist-modify-public%20user-modify-playback-state&response_type=token&state=123`);
   }
 
   createPlaylist(){
